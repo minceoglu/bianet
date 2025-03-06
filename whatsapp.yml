@@ -1,0 +1,36 @@
+name: Bianet WhatsApp Haber Botu
+
+on:
+  schedule:
+    - cron: '0 */1 * * *'  # Her saat başı çalışır
+  workflow_dispatch:
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Repoyu çek
+      uses: actions/checkout@v4
+
+    - name: Python Kurulumu
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Bağımlılıkları Yükle
+      run: |
+        pip install feedparser pywhatkit
+
+    - name: Script'i Çalıştır
+      env:
+        DISPLAY: ':99'
+      run: |
+        sudo apt-get install -y xvfb firefox
+        Xvfb :99 -screen 0 1024x768x24 &
+        python haber_gonder.py
+
+    - name: Gönderilen haberleri kaydet
+      uses: stefanzweifel/git-auto-commit-action@v5
+      with:
+        commit_message: "Yeni haberler gönderildi, güncellendi."
